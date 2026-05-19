@@ -1,0 +1,72 @@
+<div class="bookmarks-page">
+
+  <div class="page-header">
+    <div class="header-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+      </svg>
+    </div>
+    <h1>Temas guardados</h1>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-center"><div class="spinner"></div></div>
+  } @else if (error()) {
+    <div class="error-msg">{{ error() }}</div>
+  } @else if (bookmarks().length === 0) {
+    <div class="empty-state card">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+        </svg>
+      </div>
+      <h3>Sin temas guardados</h3>
+      <p>Cuando guardes un tema, aparecerá aquí.</p>
+      <a class="btn btn-primary" routerLink="/latest">Explorar temas</a>
+    </div>
+  } @else {
+    <div class="bookmark-list">
+      @for (b of bookmarks(); track b.postId) {
+        <div class="bookmark-card card">
+
+          <!-- Author avatar + info -->
+          <div class="bk-author">
+            @if (hasRealAvatar(b)) {
+              <img class="bk-avatar-img" [src]="b.authorAvatarUrl!" [alt]="b.authorUsername ?? ''" />
+            } @else {
+              <div class="avatar avatar-sm bk-avatar-letter">{{ letterFor(b) }}</div>
+            }
+            <div class="bk-author-info">
+              @if (b.authorUsername) {
+                <a class="bk-username" [routerLink]="['/u', b.authorUsername]">{{ displayName(b) }}</a>
+              }
+              <span class="bk-time text-muted text-sm">guardado {{ b.bookmarkedAt | timeAgo }}</span>
+            </div>
+          </div>
+
+          <!-- Topic title -->
+          <div class="bk-topic">
+            <a class="bk-title" [routerLink]="['/t', b.topicId]">{{ b.topicTitle }}</a>
+          </div>
+
+          <!-- Post excerpt -->
+          @if (b.excerpt) {
+            <p class="bk-excerpt text-muted">{{ b.excerpt }}</p>
+          }
+
+          <!-- Footer: link to exact post -->
+          <div class="bk-footer">
+            <a class="bk-go" [routerLink]="['/t', b.topicId]" [fragment]="'post-' + b.postNumber">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+              </svg>
+              Ver publicación #{{ b.postNumber }}
+            </a>
+          </div>
+
+        </div>
+      }
+    </div>
+  }
+
+</div>

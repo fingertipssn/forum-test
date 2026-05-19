@@ -1,0 +1,127 @@
+<div class="welcome-page">
+
+  <!-- Left panel: branding -->
+  <aside class="welcome-brand">
+    <div class="brand-inner">
+      <div class="brand-logo">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="48" height="48" rx="12" fill="#FDDA24"/>
+          <path d="M10 30 Q14 18 24 18 Q34 18 38 30" stroke="#1a1a1a" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <circle cx="18" cy="28" r="3" fill="#1a1a1a"/>
+          <circle cx="30" cy="28" r="3" fill="#1a1a1a"/>
+          <path d="M18 34 Q24 38 30 34" stroke="#1a1a1a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h1 class="brand-title">Discuss<br/><span>Bancolombia</span></h1>
+      <p class="brand-tagline">El espacio de nuestra comunidad para compartir ideas, resolver dudas y construir juntos.</p>
+
+      <ul class="brand-features">
+        <li>
+          <span class="feature-icon">💡</span>
+          <span>Comparte ideas y proyectos</span>
+        </li>
+        <li>
+          <span class="feature-icon">🤝</span>
+          <span>Conecta con colegas de toda la organización</span>
+        </li>
+        <li>
+          <span class="feature-icon">🔍</span>
+          <span>Encuentra respuestas rápidamente</span>
+        </li>
+        <li>
+          <span class="feature-icon">📢</span>
+          <span>Mantente al día con los anuncios del equipo</span>
+        </li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Right panel: login form -->
+  <main class="welcome-login">
+    <div class="login-box">
+
+      @if (devMode) {
+        <div class="login-header">
+          <h2>Modo desarrollo</h2>
+          <p>Crea un usuario de prueba para explorar el foro.</p>
+        </div>
+
+        <form class="dev-form" (ngSubmit)="devSubmit()">
+          <div class="form-group">
+            <label for="username">Nombre de usuario <span class="required">*</span></label>
+            <input
+              id="username"
+              type="text"
+              [(ngModel)]="username"
+              name="username"
+              placeholder="ej: juanlopez"
+              autocomplete="username"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="name">Nombre completo <span class="optional">(opcional)</span></label>
+            <input
+              id="name"
+              type="text"
+              [(ngModel)]="name"
+              name="name"
+              placeholder="ej: Juan López"
+              autocomplete="name"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email <span class="optional">(opcional)</span></label>
+            <input
+              id="email"
+              type="email"
+              [(ngModel)]="email"
+              name="email"
+              placeholder="ej: juan@bancolombia.com.co"
+              autocomplete="email"
+            />
+          </div>
+
+          @if (error()) {
+            <p class="login-error">{{ error() }}</p>
+          }
+
+          <button type="submit" class="btn-primary" [disabled]="loading()">
+            @if (loading()) { Entrando... } @else { Entrar al foro }
+          </button>
+        </form>
+
+        <p class="dev-note">⚠️ Modo desarrollo activo — sin autenticación corporativa.</p>
+
+      } @else {
+
+        <div class="login-header">
+          <h2>Bienvenido</h2>
+          <p>Inicia sesión con tu cuenta corporativa de Bancolombia para unirte a la conversación.</p>
+        </div>
+
+        <button class="btn-microsoft" (click)="login()">
+          <svg width="20" height="20" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1" y="1" width="9" height="9" fill="#F25022"/>
+            <rect x="11" y="1" width="9" height="9" fill="#7FBA00"/>
+            <rect x="1" y="11" width="9" height="9" fill="#00A4EF"/>
+            <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
+          </svg>
+          Continuar con Microsoft
+        </button>
+
+        <div class="login-divider">
+          <span>Acceso seguro a través de Azure Active Directory</span>
+        </div>
+
+        <p class="login-note">
+          Al iniciar sesión aceptas las <a href="#" class="link">normas de la comunidad</a>.
+        </p>
+
+      }
+    </div>
+  </main>
+
+</div>

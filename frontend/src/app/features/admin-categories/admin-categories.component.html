@@ -1,0 +1,143 @@
+<div class="admin-page">
+
+  <!-- Header -->
+  <div class="admin-header">
+    <div>
+      <h1 class="admin-title">Gestionar categorías</h1>
+      <p class="admin-subtitle">Crea y organiza las categorías del foro</p>
+    </div>
+    <a routerLink="/latest" class="btn btn-outline btn-sm">← Volver al foro</a>
+  </div>
+
+  <!-- Alerts -->
+  @if (error()) {
+    <div class="alert alert-error">{{ error() }}</div>
+  }
+  @if (success()) {
+    <div class="alert alert-success">{{ success() }}</div>
+  }
+
+  <div class="admin-layout">
+
+    <!-- ── Formulario nueva categoría ── -->
+    <section class="admin-card form-card">
+      <h2 class="card-title">Nueva categoría</h2>
+
+      <div class="form-group">
+        <label>Nombre *</label>
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Ej: General, Noticias, Soporte…"
+          [value]="newName()"
+          (input)="newName.set($any($event.target).value)"
+          maxlength="50"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Descripción</label>
+        <textarea
+          class="form-control"
+          rows="2"
+          placeholder="Breve descripción de la categoría (opcional)"
+          [value]="newDescription()"
+          (input)="newDescription.set($any($event.target).value)"
+        ></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Color de fondo</label>
+          <div class="color-input-wrap">
+            <input
+              type="color"
+              class="color-picker"
+              [value]="newColor()"
+              (input)="newColor.set($any($event.target).value)"
+            />
+            <span class="color-code">{{ newColor() }}</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Color de texto</label>
+          <div class="color-input-wrap">
+            <input
+              type="color"
+              class="color-picker"
+              [value]="newTextColor()"
+              (input)="newTextColor.set($any($event.target).value)"
+            />
+            <span class="color-code">{{ newTextColor() }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vista previa del badge -->
+      @if (newName()) {
+        <div class="form-group">
+          <label>Vista previa</label>
+          <span
+            class="category-badge"
+            [style]="'background:#' + newColor().replace('#','') + ';color:#' + newTextColor().replace('#','')"
+          >
+            {{ newName() }}
+          </span>
+        </div>
+      }
+
+      <button
+        class="btn btn-primary"
+        [disabled]="saving() || !newName().trim()"
+        (click)="createCategory()"
+      >
+        @if (saving()) {
+          <span class="spinner" style="width:14px;height:14px;border-width:2px"></span>
+          Creando…
+        } @else {
+          + Crear categoría
+        }
+      </button>
+    </section>
+
+    <!-- ── Lista de categorías existentes ── -->
+    <section class="admin-card list-card">
+      <h2 class="card-title">Categorías existentes</h2>
+
+      @if (loading()) {
+        <div class="loading-text">Cargando…</div>
+      } @else if (categories().length === 0) {
+        <div class="empty-state">
+          <span class="empty-icon">📂</span>
+          <p>Aún no hay categorías. ¡Crea la primera!</p>
+        </div>
+      } @else {
+        <ul class="category-list">
+          @for (cat of categories(); track cat.id) {
+            <li class="category-item">
+              <span
+                class="category-badge"
+                [style]="categoryBadgeStyle(cat)"
+              >
+                {{ cat.name }}
+              </span>
+              <div class="category-meta">
+                @if (cat.description) {
+                  <span class="cat-desc">{{ cat.description }}</span>
+                }
+                <span class="cat-stats">
+                  {{ cat.topicCount }} temas · {{ cat.postCount }} posts
+                </span>
+              </div>
+              <a
+                class="btn btn-outline btn-xs"
+                [routerLink]="['/c', cat.slug]"
+              >Ver</a>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+  </div>
+</div>

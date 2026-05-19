@@ -1,0 +1,123 @@
+@if (state().open) {
+  <div class="composer-overlay" (click)="close()">
+    <div class="composer-panel" role="dialog" aria-label="Composer" (click)="$event.stopPropagation()">
+
+      <!-- Header -->
+      <div class="composer-header">
+        <span class="composer-title">
+          @if (isNewTopic()) { Nuevo tema } @else { Responder: {{ state().topicTitle }} }
+        </span>
+        <button class="composer-close" (click)="close()" aria-label="Cerrar">✕</button>
+      </div>
+
+      <!-- Body -->
+      <div class="composer-body">
+
+        @if (error()) {
+          <div class="composer-error">{{ error() }}</div>
+        }
+
+        @if (isNewTopic()) {
+          <input
+            type="text"
+            class="composer-title-input"
+            placeholder="Escribe el título del tema…"
+            [value]="title()"
+            (input)="title.set($any($event.target).value)"
+            maxlength="255"
+          />
+
+          <div class="composer-category-row">
+            <label class="composer-category-label">Categoría</label>
+            @if (loadingCategories()) {
+              <span class="composer-category-loading">Cargando…</span>
+            } @else if (categories().length === 0) {
+              <span class="composer-category-empty">
+                No hay categorías. <a routerLink="/admin/categories" (click)="close()">Crear una</a>
+              </span>
+            } @else {
+              <select
+                class="composer-category-select"
+                [value]="selectedCategoryId()"
+                (change)="selectedCategoryId.set(+$any($event.target).value)"
+              >
+                @for (cat of categories(); track cat.id) {
+                  <option [value]="cat.id">{{ cat.name }}</option>
+                }
+              </select>
+            }
+          </div>
+        }
+
+        <!-- ── Editor + Preview en vivo ── -->
+        <div class="composer-split">
+
+          <!-- Columna izquierda: editor -->
+          <div
+            class="composer-editor-col"
+            [class.drop-active]="uploadState() === 'uploading'"
+            (dragover)="onDragOver($event)"
+            (drop)="onDrop($event)"
+          >
+            <div class="col-label">Editar</div>
+            <div class="textarea-wrapper">
+              <textarea
+                class="composer-textarea"
+                placeholder="Escribe en Markdown… Pega (Ctrl+V) o arrastra imágenes."
+                [value]="body()"
+                (input)="body.set($any($event.target).value)"
+                (paste)="onPaste($event)"
+              ></textarea>
+
+              @if (uploadState() === 'uploading') {
+                <div class="upload-overlay">
+                  <div class="upload-overlay-inner">
+                    <div class="spinner"></div>
+                    <span>Subiendo imagen…</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Columna derecha: preview en vivo -->
+          <div class="composer-preview-col">
+            <div class="col-label">Vista previa</div>
+            <div class="composer-preview post-content"
+                 [innerHTML]="body() | markdown">
+            </div>
+          </div>
+
+        </div>
+
+        @if (uploadState() === 'error') {
+          <div class="composer-error">⚠️ {{ uploadError() }}</div>
+        }
+
+        <div class="composer-hint">
+          <strong>Markdown</strong>: **negrita**, *cursiva*, `código`, [enlace](url)
+          &nbsp;·&nbsp;🖼️ Pega o arrastra imágenes
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="composer-footer">
+        <span class="composer-char-count">{{ body().length }} caracteres</span>
+        <div class="composer-footer-actions">
+          <button class="btn btn-outline btn-sm" (click)="close()">Cancelar</button>
+          <button
+            class="btn btn-primary"
+            [disabled]="submitting() || uploadState() === 'uploading'"
+            (click)="submit()"
+          >
+            @if (submitting()) {
+              <span class="spinner" style="width:16px;height:16px;border-width:2px"></span>
+            }
+            {{ isNewTopic() ? 'Publicar tema' : 'Publicar respuesta' }}
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+}

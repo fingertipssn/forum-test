@@ -1,0 +1,163 @@
+<div class="tl-layout">
+
+  <!-- ── Main column ── -->
+  <div class="tl-main">
+
+    <!-- Page header -->
+    <div class="page-header">
+      <div class="header-left">
+        @if (category()) {
+          <span class="cat-dot" [style.background]="'#' + category()!.color"></span>
+          <h1>{{ category()!.name }}</h1>
+        } @else {
+          <h1>Temas recientes</h1>
+        }
+      </div>
+    </div>
+
+    @if (category()?.description) {
+      <p class="cat-description">{{ category()!.description }}</p>
+    }
+
+    @if (loading()) {
+      <div class="loading-center"><div class="spinner"></div></div>
+    } @else if (error()) {
+      <div class="error-msg">{{ error() }}</div>
+    } @else if (topics().length === 0) {
+      <div class="empty-state card">
+        <div class="empty-icon">💬</div>
+        <p>No hay temas aquí todavía.</p>
+      </div>
+    } @else {
+      <div class="topic-table card">
+
+        <!-- Header row -->
+        <div class="topic-table-header">
+          <span class="col-topic">Tema</span>
+          <span class="col-posters">Autores</span>
+          <span class="col-replies">Resp.</span>
+          <span class="col-views">Vistas</span>
+          <span class="col-activity">Actividad</span>
+        </div>
+
+        <!-- Topic rows -->
+        @for (topic of topics(); track topic.id) {
+          <div class="topic-row" [class.pinned]="topic.pinnedGlobally || !!topic.pinnedAt">
+
+            <!-- Topic info column -->
+            <div class="col-topic">
+              <div class="topic-title-row">
+                @if (topic.pinnedGlobally || topic.pinnedAt) {
+                  <span class="status-icon" title="Fijado">📌</span>
+                }
+                @if (topic.closed) {
+                  <span class="status-icon" title="Cerrado">🔒</span>
+                }
+
+                <a class="topic-title" [routerLink]="['/t', topic.id]">{{ topic.title }}</a>
+
+                <!-- Category tag (only on /latest, not on category page) -->
+                @if (!category() && topic.categoryId) {
+                  <!-- Category badge will show if we add category name to TopicOut -->
+                }
+              </div>
+            </div>
+
+            <!-- Poster avatars column -->
+            <div class="col-posters">
+              <div class="poster-avatar-group">
+                @if (topic.authorAvatarUrl && !topic.authorAvatarUrl.includes('letter_avatar')) {
+                  <img
+                    class="poster-avatar"
+                    [src]="topic.authorAvatarUrl"
+                    [alt]="topic.authorUsername ?? ''"
+                    [title]="topic.authorName || topic.authorUsername || ''"
+                  />
+                } @else if (topic.authorUsername) {
+                  <span
+                    class="poster-letter"
+                    [title]="topic.authorName || topic.authorUsername"
+                  >{{ topic.authorUsername[0].toUpperCase() }}</span>
+                }
+              </div>
+            </div>
+
+            <!-- Replies -->
+            <div class="col-replies">
+              <span class="stat-num" [class.stat-num-hot]="topic.replyCount > 20">
+                {{ topic.replyCount }}
+              </span>
+            </div>
+
+            <!-- Views -->
+            <div class="col-views">
+              <span class="stat-num">{{ topic.views | number }}</span>
+            </div>
+
+            <!-- Activity -->
+            <div class="col-activity">
+              {{ topic.lastPostedAt ?? topic.createdAt | timeAgo }}
+            </div>
+
+          </div>
+        }
+      </div>
+
+      @if (totalPages() > 1) {
+        <div class="pagination">
+          <button [disabled]="page() === 1" (click)="goToPage(page() - 1)">‹</button>
+          @for (p of pageNumbers(); track p) {
+            <button [class.active]="p === page()" (click)="goToPage(p)">{{ p }}</button>
+          }
+          <button [disabled]="page() === totalPages()" (click)="goToPage(page() + 1)">›</button>
+        </div>
+      }
+    }
+  </div>
+
+  <!-- ── Right aside ── -->
+  <aside class="tl-aside">
+
+    <!-- About -->
+    <div class="aside-card about-card">
+      <div class="about-logo">D</div>
+      <h3 class="about-title">Discuss Bancolombia</h3>
+      <p class="about-desc">Espacio colaborativo para el intercambio de ideas, resolución de dudas y aprendizaje entre equipos.</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="aside-card">
+      <h4 class="aside-card-title">Estadísticas</h4>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span class="stat-value">{{ total() }}</span>
+          <span class="stat-label">Temas</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">{{ allCategories().length }}</span>
+          <span class="stat-label">Categorías</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category list -->
+    @if (allCategories().length > 0) {
+      <div class="aside-card">
+        <h4 class="aside-card-title">Categorías</h4>
+        <ul class="aside-cat-list">
+          @for (cat of allCategories(); track cat.id) {
+            <li>
+              <a [routerLink]="['/c', cat.slug]" class="aside-cat-link">
+                <span class="aside-cat-dot" [style.background]="'#' + cat.color"></span>
+                <span class="aside-cat-name">{{ cat.name }}</span>
+                <span class="aside-cat-count">{{ cat.topicCount }}</span>
+              </a>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+
+  </aside>
+
+</div>

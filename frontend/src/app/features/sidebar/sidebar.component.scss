@@ -1,0 +1,117 @@
+/* ═══════════════════════════════════════════════════════════════
+   Sidebar — replicates meta.discourse.org left panel
+   ═══════════════════════════════════════════════════════════════ */
+
+.sidebar-nav {
+  padding: .75rem 0 2rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── New Topic button ── */
+.sidebar-new-topic {
+  padding: .5rem .75rem .85rem;
+}
+
+/* ── Section title ── */
+.sidebar-section-title {
+  padding: .9rem 1rem .3rem;
+  font-size: .6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--primary-medium);
+}
+
+/* ── Nav menu ── */
+.sidebar-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0 .4rem;
+
+  li a {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    padding: .42rem .65rem;
+    font-size: .875rem;
+    color: var(--primary);
+    border-radius: var(--radius);
+    transition: background .1s, color .1s;
+    text-decoration: none !important;
+    font-weight: 400;
+    line-height: 1.4;
+
+    &:hover {
+      background: var(--primary-very-low);
+      color: var(--primary);
+      text-decoration: none !important;
+    }
+
+    &.active {
+      background: var(--tertiary-low);
+      color: var(--tertiary);
+      font-weight: 600;
+
+      .sidebar-icon { color: var(--tertiary); }
+      .cat-dot { box-shadow: 0 0 0 2px rgba(0,136,204,.2); }
+    }
+  }
+}
+
+/* ── Icons ── */
+.sidebar-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-high);
+
+  svg { width: 16px; height: 16px; }
+
+  /* legacy emoji fallback */
+  &:not(:has(svg)) {
+    font-size: .875rem;
+    text-align: center;
+  }
+}
+
+/* ── Category entries ── */
+.sidebar-categories {
+  li a {
+    gap: .5rem;
+  }
+}
+
+.cat-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+.cat-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: .8375rem;
+}
+
+.cat-count {
+  font-size: .71rem;
+  color: var(--primary-medium);
+  min-width: 16px;
+  text-align: right;
+}
+
+/* ── Divider ── */
+.sidebar-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: .5rem .75rem;
+}

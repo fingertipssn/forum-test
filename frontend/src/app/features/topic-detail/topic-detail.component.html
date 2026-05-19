@@ -1,0 +1,196 @@
+@if (loading()) {
+  <div class="loading-center"><div class="spinner"></div></div>
+} @else if (error()) {
+  <div class="error-msg">{{ error() }}</div>
+} @else if (topic()) {
+
+  <!-- Topic header -->
+  <div class="topic-header">
+    <div class="breadcrumb text-sm text-muted">
+      <a routerLink="/">Categorías</a>
+      @if (topic()!.categoryId) {
+        <span>›</span>
+        <a [routerLink]="['/c', topic()!.categoryId]">Categoría</a>
+      }
+    </div>
+    <h1 class="topic-title">
+      @if (topic()!.closed) { <span class="badge-closed">🔒 Cerrado</span> }
+      {{ topic()!.title }}
+    </h1>
+    <div class="topic-meta text-sm text-muted">
+      <span>{{ totalPosts() }} publicaciones</span>
+      <span>·</span>
+      <span>{{ topic()!.views }} vistas</span>
+      <span>·</span>
+      <span>{{ topic()!.createdAt | timeAgo }}</span>
+      @if (topic()!.authorUsername) {
+        <span>· por <a [routerLink]="['/u', topic()!.authorUsername]">{{ topic()!.authorUsername }}</a></span>
+      }
+    </div>
+  </div>
+
+  <!-- Post stream -->
+  <div class="post-stream">
+    @for (post of posts(); track post.id) {
+      <article class="post-article card" [id]="'post-' + post.postNumber">
+
+        <!-- Post sidebar (avatar + number) -->
+        <div class="post-sidebar">
+          @if (post.authorAvatarUrl && !post.authorAvatarUrl.includes('letter_avatar')) {
+            <img class="post-avatar-img" [src]="post.authorAvatarUrl" [alt]="post.authorUsername ?? ''" />
+          } @else {
+            <div class="avatar avatar-md">
+              {{ post.authorUsername?.[0]?.toUpperCase() ?? '?' }}
+            </div>
+          }
+          <span class="post-number text-muted text-sm">#{{ post.postNumber }}</span>
+        </div>
+
+        <!-- Post body -->
+        <div class="post-body">
+
+          <!-- Post header -->
+          <div class="post-header">
+            <div class="post-author-info">
+              <!-- Show display name if set, otherwise username. Link always goes to profile. -->
+              <a class="author-display-name" [routerLink]="['/u', post.authorUsername]">
+                {{ post.authorName || post.authorUsername }}
+              </a>
+            </div>
+            <div class="post-timestamp text-sm text-muted">
+              {{ post.createdAt | timeAgo }}
+              @if (post.version > 1) {
+                <span class="edited-badge" title="Editado">✏️</span>
+              }
+            </div>
+          </div>
+
+          <!-- Reply indicator -->
+          @if (post.replyToPostNumber) {
+            <div class="reply-indicator text-sm text-muted">
+              ↩ en respuesta a <a [href]="'#post-' + post.replyToPostNumber">#{{ post.replyToPostNumber }}</a>
+            </div>
+          }
+
+          <!-- Post content (editing vs reading) -->
+          @if (editingPostId() === post.id) {
+            <div class="edit-area">
+              <textarea
+                class="edit-textarea"
+                [value]="editRaw()"
+                (input)="editRaw.set($any($event.target).value)"
+                rows="8"
+              ></textarea>
+              <div class="edit-actions">
+                <button class="btn btn-primary btn-sm" (click)="saveEdit(post)">Guardar</button>
+                <button class="btn btn-outline btn-sm" (click)="cancelEdit()">Cancelar</button>
+              </div>
+            </div>
+          } @else {
+            <div class="post-content" [innerHTML]="post.cooked"></div>
+          }
+
+          <!-- Post footer actions -->
+          <div class="post-actions">
+            <!-- Like count display -->
+            @if (post.likeCount > 0) {
+              <div class="post-likes text-sm text-muted">
+                <svg class="icon icon-heart-filled" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                {{ post.likeCount }}
+              </div>
+            }
+
+            <!-- Action buttons -->
+            <div class="post-action-btns">
+              <!-- Like -->
+              @if (auth.isAuthenticated()) {
+                <button
+                  class="action-btn"
+                  [class.active]="post.likedByMe"
+                  [class.liked]="post.likedByMe"
+                  (click)="toggleLike(post)"
+                  [title]="post.likedByMe ? 'Quitar like' : 'Me gusta'"
+                >
+                  <svg viewBox="0 0 24 24" [attr.fill]="post.likedByMe ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                  </svg>
+                </button>
+              }
+
+              <!-- Share / Copy link -->
+              <button
+                class="action-btn"
+                (click)="sharePost(post)"
+                title="Copiar enlace"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
+                  <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+                </svg>
+              </button>
+
+              <!-- Bookmark -->
+              @if (auth.isAuthenticated()) {
+                <button
+                  class="action-btn"
+                  [class.active]="post.bookmarkedByMe"
+                  [class.bookmarked]="post.bookmarkedByMe"
+                  (click)="toggleBookmark(post)"
+                  [title]="post.bookmarkedByMe ? 'Quitar marcador' : 'Guardar'"
+                >
+                  <svg viewBox="0 0 24 24" [attr.fill]="post.bookmarkedByMe ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+                  </svg>
+                </button>
+              }
+
+              <!-- Reply to this post -->
+              @if (auth.isAuthenticated() && !topic()!.closed) {
+                <button class="action-btn" (click)="replyToPost(post)" title="Responder">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 17 4 12 9 7"/>
+                    <path d="M20 18v-2a4 4 0 00-4-4H4"/>
+                  </svg>
+                </button>
+              }
+
+              <!-- Edit (pencil) -->
+              @if (post.canEdit && editingPostId() !== post.id) {
+                <button class="action-btn" (click)="startEdit(post)" title="Editar">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                </button>
+              }
+            </div>
+          </div>
+
+        </div>
+      </article>
+    }
+  </div>
+
+  <!-- Pagination -->
+  @if (totalPages() > 1) {
+    <div class="pagination">
+      <button [disabled]="page() === 1" (click)="goToPage(page() - 1)">‹ Anterior</button>
+      @for (p of pageNumbers(); track p) {
+        <button [class.active]="p === page()" (click)="goToPage(p)">{{ p }}</button>
+      }
+      <button [disabled]="page() === totalPages()" (click)="goToPage(page() + 1)">Siguiente ›</button>
+    </div>
+  }
+
+  <!-- Reply button -->
+  @if (auth.isAuthenticated() && !topic()!.closed && !topic()!.archived) {
+    <div class="reply-bar">
+      <button class="btn btn-primary" (click)="reply()">+ Responder</button>
+    </div>
+  } @else if (!auth.isAuthenticated()) {
+    <div class="reply-bar text-muted text-sm">
+      <a routerLink="/login">Inicia sesión</a> para participar en esta discusión.
+    </div>
+  }
+
+}

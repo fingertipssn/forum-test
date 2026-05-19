@@ -1,0 +1,228 @@
+/* ═══════════════════════════════════════════════════════════════
+   Admin Categories — Discourse admin panel style
+   ═══════════════════════════════════════════════════════════════ */
+
+.admin-page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.admin-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-header-actions {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.admin-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0 0 .25rem;
+}
+
+.admin-subtitle {
+  color: var(--primary-high);
+  font-size: .875rem;
+  margin: 0;
+}
+
+/* Alertas */
+.alert {
+  border-radius: var(--radius);
+  padding: .75rem 1rem;
+  margin-bottom: 1rem;
+  font-size: .875rem;
+  font-weight: 500;
+}
+.alert-error {
+  background: #fff0f0;
+  border: 1px solid #fca5a5;
+  color: var(--danger);
+}
+.alert-success {
+  background: #f0fff4;
+  border: 1px solid #9ae6b4;
+  color: #276749;
+}
+
+/* Layout de dos columnas */
+.admin-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+
+  @media (max-width: 680px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Cards */
+.admin-card {
+  background: var(--secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 1.25rem;
+  color: var(--primary);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: .75rem;
+}
+
+/* Formulario */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  margin-bottom: 1rem;
+
+  label {
+    font-size: .75rem;
+    font-weight: 700;
+    color: var(--primary-high);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-control {
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius);
+  padding: .5rem .75rem;
+  font-size: .875rem;
+  width: 100%;
+  box-sizing: border-box;
+  color: var(--primary);
+  background: var(--secondary);
+  font-family: inherit;
+
+  &:focus {
+    border-color: var(--tertiary);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0,136,204,.15);
+  }
+}
+
+textarea.form-control { resize: vertical; }
+
+.color-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+
+.color-picker {
+  width: 40px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2px;
+  cursor: pointer;
+  background: none;
+}
+
+.color-code {
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  font-size: .825rem;
+  color: var(--primary-high);
+}
+
+/* Badge de categoría */
+.category-badge {
+  display: inline-block;
+  padding: .25rem .6rem;
+  border-radius: var(--radius);
+  font-size: .8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Lista */
+.loading-text {
+  color: var(--primary-high);
+  font-size: .875rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2rem 0;
+  color: var(--primary-high);
+
+  .empty-icon {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: .75rem;
+  }
+
+  p { margin: 0; font-size: .875rem; }
+}
+
+.category-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .6rem .75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--primary-very-low);
+  transition: background .08s;
+
+  &:hover { background: var(--primary-low); }
+}
+
+.category-meta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+  min-width: 0;
+}
+
+.cat-desc {
+  font-size: .8rem;
+  color: var(--primary-high);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cat-stats {
+  font-size: .75rem;
+  color: var(--primary-medium);
+}
+
+.btn-xs {
+  padding: .2rem .5rem;
+  font-size: .75rem;
+}

@@ -1,0 +1,128 @@
+<header class="topbar">
+  <div class="topbar-inner">
+
+    <!-- Logo -->
+    <a class="topbar-logo" routerLink="/">
+      <div class="logo-icon">D</div>
+      <div class="logo-text">
+        <span class="logo-title">Discuss</span>
+        <span class="logo-sub">Bancolombia</span>
+      </div>
+    </a>
+
+    <!-- Search -->
+    <form class="topbar-search" (submit)="onSearch($event)" (clickoutside)="closeDropdown()">
+      <span class="search-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </span>
+
+      <input
+        type="search"
+        placeholder="Buscar temas…"
+        [value]="searchQuery()"
+        (input)="onInput($any($event.target).value)"
+        (focus)="dropdownResults().length > 0 && dropdownOpen.set(true)"
+        (blur)="$any($event.relatedTarget)?.closest?.('.search-dropdown') || closeDropdown()"
+        autocomplete="off"
+      />
+
+      @if (searching()) {
+        <span class="search-spinner"></span>
+      } @else if (searchQuery()) {
+        <button type="button" class="search-clear" (click)="clearSearch()" tabindex="-1">✕</button>
+      }
+
+      <!-- Dropdown de resultados en tiempo real -->
+      @if (dropdownOpen()) {
+        <div class="search-dropdown">
+          @if (dropdownResults().length === 0) {
+            <div class="search-dropdown-empty">Sin resultados para "{{ searchQuery() }}"</div>
+          } @else {
+            @for (r of dropdownResults(); track r.topicId) {
+              <button
+                type="button"
+                class="search-dropdown-item"
+                (mousedown)="selectResult(r.topicId)"
+              >
+                <span class="sdi-title">{{ r.title }}</span>
+                @if (r.excerpt) {
+                  <span class="sdi-excerpt">{{ r.excerpt }}</span>
+                }
+                @if (r.authorUsername) {
+                  <span class="sdi-meta">por {{ r.authorUsername }} · {{ r.postsCount }} posts</span>
+                }
+              </button>
+            }
+            <button
+              type="button"
+              class="search-dropdown-more"
+              (mousedown)="onSearch($any($event))"
+            >
+              Ver todos los resultados para "<strong>{{ searchQuery() }}</strong>" →
+            </button>
+          }
+        </div>
+      }
+    </form>
+
+    <!-- Actions -->
+    <div class="topbar-actions">
+      @if (auth.isAuthenticated()) {
+        <div class="user-menu" [class.open]="menuOpen()">
+          <button class="user-avatar-btn" (click)="toggleMenu()" [title]="auth.currentUser()?.username ?? ''">
+            @if (auth.currentUser()?.avatarUrl && !auth.currentUser()!.avatarUrl.includes('letter_avatar')) {
+              <img class="nav-avatar-img" [src]="auth.currentUser()!.avatarUrl" [alt]="auth.currentUser()!.username" />
+            } @else {
+              <span class="avatar avatar-sm">
+                {{ auth.currentUser()?.username?.[0]?.toUpperCase() }}
+              </span>
+            }
+          </button>
+          @if (menuOpen()) {
+            <div class="dropdown" (click)="menuOpen.set(false)">
+              <!-- Header with avatar + names -->
+              <div class="dropdown-header">
+                <div class="dh-avatar-wrap">
+                  @if (auth.currentUser()?.avatarUrl && !auth.currentUser()!.avatarUrl.includes('letter_avatar')) {
+                    <img class="dh-avatar-img" [src]="auth.currentUser()!.avatarUrl" [alt]="auth.currentUser()!.username" />
+                  } @else {
+                    <span class="avatar avatar-sm dh-avatar-letter">
+                      {{ auth.currentUser()?.username?.[0]?.toUpperCase() }}
+                    </span>
+                  }
+                </div>
+                <div class="dh-names">
+                  <strong>{{ auth.currentUser()?.name || auth.currentUser()?.username }}</strong>
+                  @if (auth.currentUser()?.name) {
+                    <small>{{ auth.currentUser()?.username }}</small>
+                  }
+                </div>
+              </div>
+
+              <a class="dropdown-item" [routerLink]="['/u', auth.currentUser()?.username]">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Mi perfil
+              </a>
+              <a class="dropdown-item" routerLink="/bookmarks">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+                Temas guardados
+              </a>
+              <a class="dropdown-item" routerLink="/admin/categories">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                Gestionar categorías
+              </a>
+              <hr class="dropdown-divider" />
+              <button class="dropdown-item danger" (click)="logout()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Cerrar sesión
+              </button>
+            </div>
+          }
+        </div>
+      } @else {
+        <a class="btn btn-primary btn-sm" routerLink="/login">Iniciar sesión</a>
+      }
+    </div>
+
+  </div>
+</header>

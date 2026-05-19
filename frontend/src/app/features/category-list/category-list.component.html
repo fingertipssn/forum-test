@@ -1,0 +1,76 @@
+<div class="categories-page">
+
+  <div class="page-header">
+    <h1>Categorías</h1>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-center"><div class="spinner"></div></div>
+  } @else if (error()) {
+    <div class="error-msg">{{ error() }}</div>
+  } @else if (categories().length === 0) {
+    <div class="empty-state">
+      <p>No hay categorías disponibles todavía.</p>
+    </div>
+  } @else {
+    <div class="cat-table-wrap">
+
+      <!-- Header -->
+      <div class="cat-table-head">
+        <div class="col-cat">Categoría</div>
+        <div class="col-count">Temas</div>
+        <div class="col-latest">Últimas discusiones</div>
+      </div>
+
+      @for (cat of categories(); track cat.id) {
+        <div class="cat-row">
+
+          <!-- Category info -->
+          <div class="col-cat">
+            <div class="cat-identity">
+              <div class="cat-color-strip" [style.background]="'#' + cat.color"></div>
+              <div class="cat-text">
+                <a
+                  class="cat-name"
+                  [routerLink]="['/c', cat.slug]"
+                  [style.color]="'#' + cat.color"
+                >
+                  @if (cat.emoji) { {{ cat.emoji }}&nbsp; }{{ cat.name }}
+                </a>
+                @if (cat.description) {
+                  <p class="cat-desc">{{ cat.description }}</p>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Topic count -->
+          <div class="col-count">
+            <span class="topic-count-num">{{ cat.topicCount }}</span>
+          </div>
+
+          <!-- Latest topics -->
+          <div class="col-latest">
+            @if (cat.latestTopics && cat.latestTopics.length > 0) {
+              <ul class="latest-list">
+                @for (t of cat.latestTopics; track t.id) {
+                  <li class="latest-item">
+                    <a class="latest-title" [routerLink]="['/t', t.id]" [title]="t.title">
+                      {{ t.title }}
+                    </a>
+                    @if (t.authorUsername) {
+                      <a class="latest-author" [routerLink]="['/u', t.authorUsername]">{{ t.authorUsername }}</a>
+                    }
+                  </li>
+                }
+              </ul>
+            } @else {
+              <span class="no-topics">Sin discusiones aún</span>
+            }
+          </div>
+
+        </div>
+      }
+    </div>
+  }
+</div>

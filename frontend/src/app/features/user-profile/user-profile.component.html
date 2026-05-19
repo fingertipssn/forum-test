@@ -1,0 +1,130 @@
+@if (loading()) {
+  <div class="loading-center"><div class="spinner"></div></div>
+} @else if (!user()) {
+  <p class="text-muted">Usuario no encontrado.</p>
+} @else {
+  <div class="profile-page">
+
+    <!-- ── Profile card ───────────────────────────────────────────── -->
+    <div class="profile-card card">
+
+      <!-- Avatar -->
+      <div class="avatar-section">
+        <div class="avatar-wrapper" [class.uploading]="avatarUploading()">
+
+          @if (avatarPreview()) {
+            <img class="profile-avatar-img" [src]="avatarPreview()" alt="Vista previa" />
+          } @else if (user()!.avatarUrl && !user()!.avatarUrl.includes('letter_avatar')) {
+            <img class="profile-avatar-img" [src]="user()!.avatarUrl" [alt]="user()!.username" />
+          } @else {
+            <div class="avatar avatar-xl letter-avatar">
+              {{ user()!.username[0].toUpperCase() }}
+            </div>
+          }
+
+          @if (avatarUploading()) {
+            <div class="avatar-overlay">
+              <div class="spinner spinner-sm"></div>
+            </div>
+          }
+        </div>
+
+        <!-- Change avatar button — only own profile -->
+        @if (isOwnProfile()) {
+          <button class="btn-change-avatar" (click)="triggerAvatarInput()" [disabled]="avatarUploading()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+            Cambiar foto
+          </button>
+          <input
+            id="avatar-file-input"
+            type="file"
+            accept="image/jpeg,image/png,image/gif,image/webp"
+            style="display:none"
+            (change)="onAvatarFileSelected($event)"
+          />
+        }
+      </div>
+
+      <!-- Profile info -->
+      <div class="profile-info">
+
+        <!-- Username (not editable) -->
+        <h1 class="profile-username">{{ user()!.username }}</h1>
+
+        <!-- Display name (editable on own profile) -->
+        <div class="profile-name-section">
+          @if (editingName()) {
+            <div class="name-edit-form">
+              <input
+                class="name-input"
+                type="text"
+                [ngModel]="editNameValue()"
+                (ngModelChange)="editNameValue.set($event)"
+                placeholder="Tu nombre completo"
+                maxlength="255"
+                (keyup.enter)="saveName()"
+                (keyup.escape)="cancelEditName()"
+                autofocus
+              />
+              <div class="name-edit-actions">
+                <button class="btn btn-primary btn-sm" (click)="saveName()" [disabled]="savingName()">
+                  {{ savingName() ? 'Guardando…' : 'Guardar' }}
+                </button>
+                <button class="btn btn-outline btn-sm" (click)="cancelEditName()">Cancelar</button>
+              </div>
+            </div>
+          } @else {
+            <div class="name-display">
+              <span class="profile-display-name text-muted">
+                {{ user()!.name || 'Sin nombre' }}
+              </span>
+              @if (isOwnProfile()) {
+                <button class="btn-edit-inline" (click)="startEditName()" title="Editar nombre">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Email — only visible to owner -->
+        @if (isOwnProfile() && user()!.email) {
+          <div class="profile-email">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+            <span>{{ user()!.email }}</span>
+            <span class="private-badge">Privado</span>
+          </div>
+        }
+
+        <!-- Badges -->
+        <div class="profile-badges">
+          @if (user()!.admin) {
+            <span class="badge badge-admin">Admin</span>
+          }
+          @if (user()!.moderator) {
+            <span class="badge badge-mod">Moderador</span>
+          }
+        </div>
+
+        <!-- Meta info -->
+        <div class="profile-meta text-sm text-muted">
+          <span>Miembro desde {{ user()!.createdAt | timeAgo }}</span>
+          @if (user()!.lastSeenAt) {
+            <span>· Visto {{ user()!.lastSeenAt | timeAgo }}</span>
+          }
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+}
