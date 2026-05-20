@@ -10,8 +10,8 @@
 html, body {
   margin: 0; padding: 0;
   font-family: 'Source Sans 3', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
+  font-size: 17px;
+  line-height: 1.6;
   color: var(--primary);
   background: var(--secondary);
   min-height: 100vh;
@@ -19,34 +19,34 @@ html, body {
 a { color: var(--tertiary); text-decoration: none; }
 a:hover { color: var(--tertiary); text-decoration: underline; }
 
-/* ── Discourse CSS Custom Properties ── */
+/* ── CSS Custom Properties — Black / Yellow / White theme ── */
 :root {
-  /* Core Discourse colors */
-  --primary:              #1d2731;   /* main text, icons, borders */
-  --secondary:            #ffffff;   /* main background */
-  --tertiary:             #0088cc;   /* links, buttons, accent */
-  --quaternary:           #e45735;   /* header links / special */
-  --header_background:    #ffffff;
-  --header_primary:       #1d2731;
+  /* Core colors */
+  --primary:              #1a1a1a;   /* near-black — text, icons */
+  --secondary:            #ffffff;   /* white — main background */
+  --tertiary:             #b8860b;   /* dark gold — links (readable on white) */
+  --quaternary:           #f5b800;   /* bright yellow — accent / special */
+  --header_background:    #1a1a1a;   /* black topbar */
+  --header_primary:       #ffffff;   /* white text in topbar */
 
   /* Color scales */
-  --primary-very-low:     #f3f3f3;
-  --primary-low:          #e9e9e9;
-  --primary-medium:       #b4b4b4;
-  --primary-high:         #6e7b8b;
-  --tertiary-low:         #e8f4fb;
-  --tertiary-medium:      #b3d9f0;
+  --primary-very-low:     #f5f5f5;
+  --primary-low:          #e0e0e0;
+  --primary-medium:       #909090;
+  --primary-high:         #555555;
+  --tertiary-low:         #fffbeb;   /* pale yellow tint */
+  --tertiary-medium:      #fef3c7;   /* medium yellow tint */
 
   /* Semantic */
-  --danger:               #e45735;
-  --success:              #6aad5e;
-  --highlight:            #f0f0f0;
-  --love:                 #f44336;
+  --danger:               #dc2626;
+  --success:              #16a34a;
+  --highlight:            #fef9c3;
+  --love:                 #ef4444;
 
   /* App dimensions */
-  --topbar-h:             56px;
+  --topbar-h:             60px;
   --sidebar-w:            240px;
-  --content-max:          1110px;
+  --content-max:          1400px;
   --radius:               4px;
   --radius-lg:            8px;
 
@@ -96,9 +96,8 @@ p { margin: 0 0 .9rem; }
 
 .app-main {
   flex: 1;
-  max-width: calc(var(--content-max) - var(--sidebar-w));
-  padding: 1.5rem 2rem;
   min-width: 0;
+  padding: 2rem 2.5rem;
 }
 
 @media (max-width: 780px) {
@@ -133,12 +132,13 @@ p { margin: 0 0 .9rem; }
   text-decoration: none !important;
 
   &.btn-primary {
-    background: var(--tertiary);
-    color: #fff;
-    border-color: var(--tertiary);
+    background: var(--quaternary);
+    color: #1a1a1a;
+    border-color: var(--quaternary);
+    font-weight: 700;
     &:hover {
-      background: #006aaa;
-      border-color: #006aaa;
+      background: #d4a000;
+      border-color: #d4a000;
       text-decoration: none;
     }
   }
@@ -198,7 +198,7 @@ select {
 
   &:focus {
     border-color: var(--tertiary);
-    box-shadow: 0 0 0 2px rgba(0,136,204,.18);
+    box-shadow: 0 0 0 2px rgba(184,134,11,.2);
   }
 
   &::placeholder { color: var(--primary-medium); }

@@ -16,8 +16,8 @@
 
 /* ── Section title ── */
 .sidebar-section-title {
-  padding: .9rem 1rem .3rem;
-  font-size: .6875rem;
+  padding: 1rem 1rem .35rem;
+  font-size: .75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .07em;
@@ -34,8 +34,8 @@
     display: flex;
     align-items: center;
     gap: .55rem;
-    padding: .42rem .65rem;
-    font-size: .875rem;
+    padding: .52rem .65rem;
+    font-size: .9375rem;
     color: var(--primary);
     border-radius: var(--radius);
     transition: background .1s, color .1s;
@@ -51,11 +51,11 @@
 
     &.active {
       background: var(--tertiary-low);
-      color: var(--tertiary);
-      font-weight: 600;
+      color: #1a1a1a;
+      font-weight: 700;
 
       .sidebar-icon { color: var(--tertiary); }
-      .cat-dot { box-shadow: 0 0 0 2px rgba(0,136,204,.2); }
+      .cat-dot { box-shadow: 0 0 0 2px rgba(184,134,11,.25); }
     }
   }
 }
@@ -99,11 +99,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: .8375rem;
+  font-size: .9375rem;
 }
 
 .cat-count {
-  font-size: .71rem;
+  font-size: .8125rem;
   color: var(--primary-medium);
   min-width: 16px;
   text-align: right;
