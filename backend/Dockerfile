@@ -1,15 +1,25 @@
 FROM python:3.12-slim
 
+# Copiar uv desde su imagen oficial
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y \
-    libpq-dev gcc curl \
+    libpq-dev gcc \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Copiar solo los archivos de dependencias primero (mejor cache de Docker)
+COPY pyproject.toml uv.lock ./
 
+# Instalar dependencias de producción (sin grupo dev)
+RUN uv sync --frozen --no-dev
+
+# Copiar el resto del código
 COPY . .
+
+# Añadir el entorno virtual al PATH
+ENV PATH="/app/.venv/bin:$PATH"
 
 EXPOSE 8000
 
