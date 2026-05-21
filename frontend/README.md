@@ -261,13 +261,3 @@ El reporte de cobertura se genera en `coverage/discourse-forum-frontend/`.
 | `user-profile.component.spec.ts` | Renderizado del perfil |
 | `dev-auth.interceptor.spec.ts` | Adjuntar token dev en requests |
 | `time-ago.pipe.spec.ts` | Formato de fechas relativas |
-
----
-
-## Seguridad
-
-- **XSS:** El pipe `markdown` sanitiza el HTML generado con **DOMPurify** antes de llamar a `bypassSecurityTrustHtml`. Solo se permiten elementos y atributos seguros de una allowlist explícita.
-- **Tokens:** Los tokens de MSAL se almacenan en **`SessionStorage`** (no `localStorage`), reduciendo la exposición ante ataques XSS persistentes.
-- **Interceptores:** `AzureAuthInterceptor` y `DevAuthInterceptor` nunca exponen tokens a través de logs ni mensajes de error al usuario.
-- **PII Logging:** MSAL tiene `piiLoggingEnabled: false` en todos los entornos.
-- **Redirect URIs:** En producción, las URIs de redirect deben apuntar a HTTPS y estar registradas en Azure AD Portal. Nunca usar `localhost` en producción.

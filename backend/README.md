@@ -130,76 +130,6 @@ Una vez iniciado, la API estará disponible en:
 
 ---
 
-## Endpoints de la API
-
-### Autenticación — `/api/auth`
-
-| Método | Ruta | Descripción | Auth |
-|---|---|---|---|
-| `GET` | `/api/auth/me` | Datos del usuario autenticado | Requerida |
-| `POST` | `/api/auth/sync` | Actualiza `last_seen_at` | Requerida |
-| `POST` | `/api/auth/dev-login` | Login de desarrollo (solo `DEV_MODE=true`) | — |
-
-### Categorías — `/api/categories`
-
-| Método | Ruta | Descripción | Auth |
-|---|---|---|---|
-| `GET` | `/api/categories` | Lista todas las categorías visibles | Opcional |
-| `GET` | `/api/categories/{slug}` | Detalle de una categoría | Opcional |
-| `POST` | `/api/categories` | Crear categoría (staff en producción) | Requerida |
-
-### Temas — `/api/topics`
-
-| Método | Ruta | Descripción | Auth |
-|---|---|---|---|
-| `GET` | `/api/topics/latest` | Últimos temas paginados | Opcional |
-| `GET` | `/api/c/{slug}/topics` | Temas de una categoría | Opcional |
-| `GET` | `/api/t/{topic_id}` | Detalle de un tema con sus posts | Opcional |
-| `POST` | `/api/t` | Crear nuevo tema | Requerida |
-| `PUT` | `/api/t/{topic_id}` | Editar tema (propietario o staff) | Requerida |
-| `DELETE` | `/api/t/{topic_id}` | Borrar tema (soft delete) | Requerida |
-
-### Posts — `/api/posts`
-
-| Método | Ruta | Descripción | Auth |
-|---|---|---|---|
-| `POST` | `/api/posts` | Crear reply en un tema | Requerida |
-| `PUT` | `/api/posts/{post_id}` | Editar post | Requerida |
-| `DELETE` | `/api/posts/{post_id}` | Borrar post (soft delete) | Requerida |
-| `POST` | `/api/posts/{post_id}/like` | Toggle like | Requerida |
-| `POST` | `/api/posts/{post_id}/bookmark` | Toggle bookmark | Requerida |
-
-### Usuarios — `/api/u`
-
-| Método | Ruta | Descripción | Auth |
-|---|---|---|---|
-| `GET` | `/api/u/{username}` | Perfil de usuario | Opcional |
-| `PUT` | `/api/u/{username}` | Actualizar nombre | Requerida (propio) |
-| `POST` | `/api/u/{username}/avatar` | Subir avatar | Requerida (propio) |
-| `GET` | `/api/u/{username}/topics` | Temas del usuario | Opcional |
-
-### Subidas — `/api/uploads`
-
-| Método | Ruta | Descripción | Auth |
-|---|---|---|---|
-| `POST` | `/api/uploads` | Subir imagen (JPEG, PNG, GIF, WebP) | Requerida |
-| `POST` | `/api/uploads/{id}/reference` | Vincular imagen a un post/tema | Requerida (propietario) |
-
-### Búsqueda — `/api/search`
-
-| Método | Ruta | Descripción | Auth |
-|---|---|---|---|
-| `GET` | `/api/search?q=texto` | Búsqueda full-text paginada | Opcional |
-| `POST` | `/api/search/reindex` | Reindexar posts (solo `DEV_MODE`) | Requerida |
-
-### Bookmarks — `/api/bookmarks`
-
-| Método | Ruta | Descripción | Auth |
-|---|---|---|---|
-| `GET` | `/api/bookmarks` | Lista de bookmarks del usuario | Requerida |
-
----
-
 ## Estructura del proyecto
 
 ```
@@ -258,25 +188,6 @@ backend/
 ├── pyproject.toml             # Dependencias y configuración de pytest
 └── run.py                     # Script de arranque para desarrollo
 ```
-
-### Flujo de autenticación
-
-```
-Frontend                    Backend                         Azure AD
-   │                           │                               │
-   │── loginRedirect() ────────┼──────────────────────────────►│
-   │◄─ auth code + redirect ───┼───────────────────────────────│
-   │── Bearer token ──────────►│                               │
-   │                           │── GET /discovery/v2.0/keys ──►│
-   │                           │◄─ JWKS public keys ───────────│
-   │                           │── Valida firma RS256           │
-   │                           │── Valida audience/tenant/iss  │
-   │◄─ 200 OK (User) ──────────│                               │
-```
-
-En `DEV_MODE=true` el frontend envía un token HS256 firmado localmente que el backend acepta sin consultar Azure AD.
-
----
 
 ## Workers Celery
 
@@ -369,18 +280,3 @@ docker run -p 8000:8000 \
 El Dockerfile usa `uv sync --frozen --no-dev` para instalar solo dependencias de producción.
 
 ---
-
-## Seguridad
-
-El backend implementa las siguientes medidas de seguridad (OWASP Top 10):
-
-- **XSS:** Markdown renderizado con `escape=True` (mistune); contenido de citas escapado con `html.escape()`.
-- **SSRF:** El descargador de imágenes externas bloquea rangos de IP privados (`127.x`, `10.x`, `172.16.x`, `192.168.x`, `169.254.x`).
-- **SVG:** No se aceptan archivos `image/svg+xml` en uploads (pueden contener JavaScript).
-- **Hashing:** SHA-256 para deduplicación de archivos (en lugar de SHA-1).
-- **Headers HTTP:** `X-Content-Type-Options`, `X-Frame-Options`, `CSP`, `HSTS` (producción), `Referrer-Policy`, `Permissions-Policy`.
-- **CORS:** Métodos y headers explícitos (no `*`).
-- **Docs API:** Swagger/ReDoc/OpenAPI deshabilitados si `DEBUG=false`.
-- **Autorización en uploads:** Solo el propietario puede referenciar sus propios uploads.
-- **Decompression bombs:** Pillow con `MAX_IMAGE_PIXELS=40MP`.
-- **Secreto por defecto:** El servidor rechaza arrancar en producción con el secreto JWT por defecto.
