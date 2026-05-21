@@ -6,8 +6,9 @@ export const environment = {
     auth: {
       clientId: 'f55271c9-f468-4a6d-a7fa-576b96b6bdeb',
       authority: 'https://login.microsoftonline.com/fe990d52-55f3-437e-9b9a-7192d2f17c9f',
-      redirectUri: 'http://localhost:4200/auth/finish',
-      postLogoutRedirectUri: 'http://localhost:4200/login',
+      // TODO: Replace with the actual production domain before deploying.
+      redirectUri: 'https://PRODUCTION_DOMAIN/auth/finish',
+      postLogoutRedirectUri: 'https://PRODUCTION_DOMAIN/login',
       navigateToLoginRequestUrl: false,
     },
   },

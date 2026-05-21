@@ -1,8 +1,10 @@
+import ipaddress
 import logging
 import os
 import re
 import hashlib
 import mimetypes
+import socket
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
@@ -19,6 +21,29 @@ logger = logging.getLogger(__name__)
 
 MAX_IMAGE_SIZE = 10 * 1024 * 1024  # 10 MB
 ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp"}
+
+_PRIVATE_NETWORKS = [
+    ipaddress.ip_network("127.0.0.0/8"),
+    ipaddress.ip_network("10.0.0.0/8"),
+    ipaddress.ip_network("172.16.0.0/12"),
+    ipaddress.ip_network("192.168.0.0/16"),
+    ipaddress.ip_network("169.254.0.0/16"),  # link-local / cloud metadata
+    ipaddress.ip_network("::1/128"),
+    ipaddress.ip_network("fc00::/7"),
+]
+
+
+def _is_ssrf_safe(url: str) -> bool:
+    """Return False if the URL resolves to an internal/private IP."""
+    try:
+        parsed = urlparse(url)
+        hostname = parsed.hostname
+        if not hostname:
+            return False
+        ip = ipaddress.ip_address(socket.gethostbyname(hostname))
+        return not any(ip in net for net in _PRIVATE_NETWORKS)
+    except Exception:
+        return False
 
 _engine = None
 _Session = None
@@ -102,7 +127,11 @@ def _download_image(url: str) -> str | None:
         if parsed.netloc in _get_blocked_domains():
             return None
 
-        resp = requests.get(url, timeout=15, stream=True)
+        if not _is_ssrf_safe(url):
+            logger.warning("PullHotlinkedImages: blocked SSRF attempt to %s", url)
+            return None
+
+        resp = requests.get(url, timeout=15, stream=True, allow_redirects=False)
         resp.raise_for_status()
 
         content_type = resp.headers.get("content-type", "").split(";")[0].strip()

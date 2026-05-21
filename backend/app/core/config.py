@@ -1,6 +1,12 @@
 from pydantic_settings import BaseSettings
 from typing import List
 import json
+import logging
+import secrets
+
+logger = logging.getLogger(__name__)
+
+_INSECURE_DEFAULT_SECRET = "discourse-dev-secret-change-in-production"
 
 
 class Settings(BaseSettings):
@@ -23,7 +29,7 @@ class Settings(BaseSettings):
     SITE_BASE_URL: str = "http://localhost:8000"
 
     DEV_MODE: bool = False
-    DEV_JWT_SECRET: str = "discourse-dev-secret-change-in-production"
+    DEV_JWT_SECRET: str = _INSECURE_DEFAULT_SECRET
 
     CELERY_ENABLED: bool = True
 
@@ -49,3 +55,15 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+if not settings.DEV_MODE and settings.DEV_JWT_SECRET == _INSECURE_DEFAULT_SECRET:
+    raise RuntimeError(
+        "DEV_JWT_SECRET must be changed from the default value before running in production. "
+        f"Generate one with: python -c \"import secrets; print(secrets.token_hex(32))\""
+    )
+
+if settings.DEV_MODE and settings.DEV_JWT_SECRET == _INSECURE_DEFAULT_SECRET:
+    logger.warning(
+        "DEV_JWT_SECRET is set to the insecure default. "
+        "Set a strong secret via the DEV_JWT_SECRET environment variable."
+    )

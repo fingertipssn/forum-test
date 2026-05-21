@@ -1,12 +1,14 @@
+import html as _html_module
 import re
 import mistune
 from bs4 import BeautifulSoup
 
 
 def _make_renderer():
+    # escape=True prevents users from injecting raw HTML through markdown posts.
     return mistune.create_markdown(
         plugins=["strikethrough", "table", "url"],
-        escape=False,
+        escape=True,
     )
 
 
@@ -37,7 +39,8 @@ def _process_quotes(html: str) -> str:
     )
 
     def replace_quote(match):
-        citation = match.group(1) or ""
+        # Escape citation (user-controlled) before embedding in HTML.
+        citation = _html_module.escape(match.group(1) or "", quote=True)
         content = match.group(2).strip()
         inner_html = _renderer(content)
         title_html = f'<div class="title">{citation}</div>' if citation else ""

@@ -28,8 +28,8 @@ export function msalInstanceFactory(): IPublicClientApplication {
       navigateToLoginRequestUrl: false,
     },
     cache: {
-      cacheLocation: BrowserCacheLocation.LocalStorage,
-      storeAuthStateInCookie: true,
+      cacheLocation: BrowserCacheLocation.SessionStorage,
+      storeAuthStateInCookie: false,
     },
     system: {
       loggerOptions: {

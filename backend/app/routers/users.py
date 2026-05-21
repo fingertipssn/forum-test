@@ -142,6 +142,7 @@ async def upload_avatar(
     # Resize to avatar size (200x200) using Pillow
     try:
         from PIL import Image
+        Image.MAX_IMAGE_PIXELS = 40_000_000  # prevent decompression bomb DoS
         img = Image.open(io.BytesIO(data))
         img = img.convert("RGB")
         img.thumbnail((200, 200), Image.LANCZOS)
@@ -151,7 +152,7 @@ async def upload_avatar(
     except Exception:
         pass  # Use original if PIL fails
 
-    sha1 = hashlib.sha1(data).hexdigest()
+    sha1 = hashlib.sha256(data).hexdigest()
     ext = "jpg"
 
     # Check for existing upload with same sha1

@@ -17,10 +17,9 @@ from ..schemas.upload import UploadOut
 router = APIRouter()
 
 ALLOWED_MIME = {
-    "image/jpeg", "image/png", "image/gif",
-    "image/webp", "image/svg+xml",
+    "image/jpeg", "image/png", "image/gif", "image/webp",
 }
-ALLOWED_EXT = {"jpg", "jpeg", "png", "gif", "webp", "svg"}
+ALLOWED_EXT = {"jpg", "jpeg", "png", "gif", "webp"}
 MAX_SIZE_BYTES = 10 * 1024 * 1024   # 10 MB
 THUMBNAIL_MAX_W = 690               # ancho máximo en posts (igual que Discourse)
 
@@ -51,17 +50,18 @@ def _save_to_disk(data: bytes, sha1: str, ext: str) -> tuple[str, str]:
     return full_path, url
 
 
+_MAX_IMAGE_PIXELS = 40_000_000  # 40 MP — prevent decompression bomb DoS
+
+
 def _process_image(data: bytes, ext: str):
     """
     Usa Pillow para obtener dimensiones, color dominante y generar thumbnail.
     Devuelve (width, height, thumbnail_width, thumbnail_height,
                thumb_data, thumb_sha1, dominant_color, animated).
     """
-    if ext == "svg":
-        return None, None, None, None, None, None, None, False
-
     try:
         from PIL import Image, ImageStat
+        Image.MAX_IMAGE_PIXELS = _MAX_IMAGE_PIXELS
         img = Image.open(io.BytesIO(data))
         orig_w, orig_h = img.width, img.height
         animated = getattr(img, "is_animated", False)
@@ -121,8 +121,8 @@ async def upload_image(
             detail=f"El archivo supera el límite de {MAX_SIZE_BYTES // 1024 // 1024} MB.",
         )
 
-    # ── 2. SHA1 y deduplicación ──────────────────────────────────────────────
-    sha1 = hashlib.sha1(data).hexdigest()
+    # ── 2. SHA256 y deduplicación ────────────────────────────────────────────
+    sha1 = hashlib.sha256(data).hexdigest()
     ext = _ext_from(file.filename or "", content_type)
 
     existing = await db.execute(
@@ -164,7 +164,8 @@ async def upload_image(
     await db.flush()   # obtenemos el id sin cerrar la transacción
 
     # ── 6. Crear optimized_image si hay thumbnail ────────────────────────────
-    if thumb_data and thumb_sha1 and thumb_w and thumb_h:
+    if thumb_data and thumb_w and thumb_h:
+        thumb_sha1 = hashlib.sha256(thumb_data).hexdigest()
         _, thumb_url = _save_to_disk(thumb_data, thumb_sha1, "jpg")
 
         optimized = OptimizedImage(
@@ -200,10 +201,13 @@ async def create_upload_reference(
     if target_type not in ("Post", "Topic"):
         raise HTTPException(status_code=400, detail="target_type debe ser 'Post' o 'Topic'")
 
-    # Verificar que el upload existe
+    # Verificar que el upload existe y pertenece al usuario
     result = await db.execute(select(Upload).where(Upload.id == upload_id))
-    if not result.scalar_one_or_none():
+    upload = result.scalar_one_or_none()
+    if not upload:
         raise HTTPException(status_code=404, detail="Upload no encontrado")
+    if upload.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No tienes permisos sobre este upload")
 
     # Evitar duplicados
     existing = await db.execute(

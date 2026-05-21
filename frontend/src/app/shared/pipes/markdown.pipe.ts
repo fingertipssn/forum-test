@@ -1,9 +1,22 @@
 import { Pipe, PipeTransform, inject } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { marked } from 'marked';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const DOMPurify = require('dompurify');
 
-// Configurar marked una sola vez: no escapa HTML para que las imágenes funcionen
 marked.setOptions({ breaks: true });
+
+const PURIFY_OPTIONS = {
+  ALLOWED_TAGS: [
+    'p', 'br', 'strong', 'em', 'b', 'i', 'u', 's', 'del', 'ins',
+    'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+    'ul', 'ol', 'li', 'blockquote', 'pre', 'code',
+    'a', 'img', 'table', 'thead', 'tbody', 'tr', 'th', 'td',
+    'hr', 'aside', 'div', 'span',
+  ],
+  ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'target', 'rel'],
+  ALLOW_DATA_ATTR: false,
+};
 
 @Pipe({ name: 'markdown', standalone: true })
 export class MarkdownPipe implements PipeTransform {
@@ -11,10 +24,9 @@ export class MarkdownPipe implements PipeTransform {
 
   transform(value: string | null | undefined): SafeHtml {
     if (!value?.trim()) return '';
-    // marked.parse() es síncrono cuando no hay extensiones async
-    const html = marked.parse(value) as string;
-    // bypassSecurityTrustHtml: confiamos en el HTML generado por marked
-    // (en producción añadir DOMPurify para sanitización adicional)
-    return this.sanitizer.bypassSecurityTrustHtml(html);
+    const raw = marked.parse(value) as string;
+    // DOMPurify sanitizes before we bypass Angular's security check.
+    const safe: string = DOMPurify.sanitize(raw, PURIFY_OPTIONS);
+    return this.sanitizer.bypassSecurityTrustHtml(safe);
   }
 }
