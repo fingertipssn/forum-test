@@ -313,4 +313,11 @@ async def _create_user_from_token(db: AsyncSession, payload: dict, oid: str):
             logger.warning("No se pudo crear %s para user_id=%d: %s", label, user.id, e)
 
     logger.info("Created new user %s from EntraID oid=%s", username, oid)
-    return user
+
+    # Recargar el usuario con las relaciones necesarias para evitar lazy='raise'
+    result = await db.execute(
+        select(User)
+        .options(selectinload(User.emails), selectinload(User.associated_accounts))
+        .where(User.id == user.id)
+    )
+    return result.scalar_one()

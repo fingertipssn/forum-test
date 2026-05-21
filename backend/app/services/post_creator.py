@@ -154,8 +154,8 @@ class PostCreatorService(Service):
             await self.db.execute(text("SAVEPOINT sp_search"))
             await self.db.execute(
                 text("""
-                    INSERT INTO post_search_data (post_id, search_data, raw_data, locale, version)
-                    VALUES (:post_id, to_tsvector('english', :raw_data), :raw_data, 'english', 1)
+                    INSERT INTO post_search_data (post_id, search_data, raw_data, locale, version, private_message)
+                    VALUES (:post_id, to_tsvector('english', :raw_data), :raw_data, 'english', 1, false)
                 """),
                 {"post_id": self.post.id, "raw_data": raw_data},
             )

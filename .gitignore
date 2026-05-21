@@ -1,0 +1,34 @@
+# ── Python / Backend ──────────────────────────────
+backend/.venv/
+backend/venv/
+backend/env/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/*.py[cod]
+backend/*.egg-info/
+backend/dist/
+backend/build/
+backend/.pytest_cache/
+backend/.coverage
+backend/htmlcov/
+backend/uploads/
+
+# Variables de entorno (contienen secretos)
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# ── Node / Angular / Frontend ─────────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/.sass-cache/
+frontend/*.js.map
+
+# ── IDEs / SO ─────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+Thumbs.db
+.DS_Store

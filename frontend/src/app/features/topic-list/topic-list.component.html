@@ -106,8 +106,12 @@
       @if (totalPages() > 1) {
         <div class="pagination">
           <button [disabled]="page() === 1" (click)="goToPage(page() - 1)">‹</button>
-          @for (p of pageNumbers(); track p) {
-            <button [class.active]="p === page()" (click)="goToPage(p)">{{ p }}</button>
+          @for (p of pageNumbers(); track $index) {
+            @if (p === 0) {
+              <span class="pagination-ellipsis">…</span>
+            } @else {
+              <button [class.active]="p === page()" (click)="goToPage(p)">{{ p }}</button>
+            }
           }
           <button [disabled]="page() === totalPages()" (click)="goToPage(page() + 1)">›</button>
         </div>

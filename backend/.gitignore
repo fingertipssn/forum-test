@@ -1,0 +1,38 @@
+# Entorno virtual
+.venv/
+venv/
+env/
+
+# Variables de entorno (contiene secretos)
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Uploads generados en runtime
+uploads/
+
+# Logs
+*.log
+
+# IDEs
+.vscode/
+.idea/
+
+# Sistema operativo
+Thumbs.db
+.DS_Store

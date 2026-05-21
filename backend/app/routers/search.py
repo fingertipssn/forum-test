@@ -170,13 +170,14 @@ async def reindex_all(
 
     # Indexar posts que aún no tienen entrada en post_search_data
     result = await db.execute(text("""
-        INSERT INTO post_search_data (post_id, search_data, raw_data, locale, version)
+        INSERT INTO post_search_data (post_id, search_data, raw_data, locale, version, private_message)
         SELECT
             p.id,
             to_tsvector('english', COALESCE(t.title, '') || ' ' || COALESCE(p.raw, '')),
             COALESCE(t.title, '') || ' ' || COALESCE(p.raw, ''),
             'english',
-            1
+            1,
+            false
         FROM posts p
         JOIN topics t ON t.id = p.topic_id
         WHERE p.deleted_at IS NULL

@@ -1,0 +1,34 @@
+# Dependencias
+node_modules/
+
+# Build output
+dist/
+
+# Angular cache (generado al correr ng serve / ng build)
+.angular/
+
+# Variables de entorno locales
+.env
+.env.*
+!.env.example
+
+# IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Sistema operativo
+Thumbs.db
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Cobertura de tests
+coverage/

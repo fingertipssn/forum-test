@@ -101,8 +101,23 @@ export class TopicListComponent implements OnInit, OnDestroy {
     window.scrollTo(0, 0);
   }
 
+  /** Returns page numbers to display. 0 is used as an ellipsis marker. */
   pageNumbers(): number[] {
-    return Array.from({ length: this.totalPages() }, (_, i) => i + 1);
+    const total = this.totalPages();
+    const current = this.page();
+    if (total <= 7) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+    const pages: number[] = [];
+    const addPage = (p: number) => { if (!pages.includes(p)) pages.push(p); };
+    addPage(1);
+    const start = Math.max(2, current - 2);
+    const end = Math.min(total - 1, current + 2);
+    if (start > 2) pages.push(0); // left ellipsis
+    for (let i = start; i <= end; i++) addPage(i);
+    if (end < total - 1) pages.push(0); // right ellipsis
+    addPage(total);
+    return pages;
   }
 
   openNewTopic() {

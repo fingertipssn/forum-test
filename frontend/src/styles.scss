@@ -397,6 +397,17 @@ textarea { resize: vertical; min-height: 120px; }
       border-color: var(--primary-medium);
     }
   }
+
+  .pagination-ellipsis {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    font-size: .875rem;
+    color: var(--primary-medium);
+    user-select: none;
+  }
 }
 
 /* ── Error message ── */
